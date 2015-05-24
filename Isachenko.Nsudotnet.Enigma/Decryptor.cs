@@ -33,18 +33,21 @@ namespace Isachenko.Nsudotnet.Enigma
             }
 
             string[] temp = File.ReadAllLines(keysFilePath);
-            algorithm.IV = Convert.FromBase64String(temp[0]);
-            algorithm.Key = Convert.FromBase64String(temp[1]);
-            using (var inStream = srcInfo.OpenRead())
+            using (algorithm)
             {
-                using (var outStream = new FileStream(Path.GetFullPath(dst), FileMode.OpenOrCreate))
+                algorithm.IV = Convert.FromBase64String(temp[0]);
+                algorithm.Key = Convert.FromBase64String(temp[1]);
+                using (var inStream = srcInfo.OpenRead())
                 {
-                    using (
-                        var cryptoStream = new CryptoStream(outStream, algorithm.CreateDecryptor(),
-                            CryptoStreamMode.Write))
+                    using (var outStream = new FileStream(Path.GetFullPath(dst), FileMode.OpenOrCreate))
                     {
-                        inStream.CopyTo(cryptoStream);
-                        cryptoStream.Flush();
+                        using (
+                            var cryptoStream = new CryptoStream(outStream, algorithm.CreateDecryptor(),
+                                CryptoStreamMode.Write))
+                        {
+                            inStream.CopyTo(cryptoStream);
+                            cryptoStream.Flush();
+                        }
                     }
                 }
             }

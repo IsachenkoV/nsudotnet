@@ -31,26 +31,28 @@ namespace Isachenko.Nsudotnet.Enigma
                     Console.WriteLine("Unknown algorithm: {0}", method);
                     return;
             }
-
-            algorithm.GenerateIV();
-            algorithm.GenerateKey();
-
-            using (var inStream = srcInfo.OpenRead())
+            using (algorithm)
             {
-                using (var outStream = new FileStream(Path.GetFullPath(dest), FileMode.OpenOrCreate))
+                algorithm.GenerateIV();
+                algorithm.GenerateKey();
+
+                using (var inStream = srcInfo.OpenRead())
                 {
-                    using (
-                        var cryptoStream = new CryptoStream(outStream, algorithm.CreateEncryptor(),
-                            CryptoStreamMode.Write))
-                    {                        
-                        inStream.CopyTo(cryptoStream);
-                        cryptoStream.Flush();
+                    using (var outStream = new FileStream(Path.GetFullPath(dest), FileMode.OpenOrCreate))
+                    {
+                        using (
+                            var cryptoStream = new CryptoStream(outStream, algorithm.CreateEncryptor(),
+                                CryptoStreamMode.Write))
+                        {
+                            inStream.CopyTo(cryptoStream);
+                            cryptoStream.Flush();
+                        }
                     }
                 }
-            }
 
-            string[] temp = {Convert.ToBase64String(algorithm.IV), Convert.ToBase64String(algorithm.Key)};
-            File.WriteAllLines(keysFilePath, temp);
+                string[] temp = {Convert.ToBase64String(algorithm.IV), Convert.ToBase64String(algorithm.Key)};
+                File.WriteAllLines(keysFilePath, temp);
+            }
         }
     }
 }
