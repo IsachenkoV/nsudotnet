@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 
 namespace Isachenko.Nsudotnet.Enigma
 {
-    public class Encryptor
+    public class Encryptor : Scrambler
     {
         public void EncryptFile(string src, string method, string dest)
         {
@@ -13,25 +13,7 @@ namespace Isachenko.Nsudotnet.Enigma
             var srcInfo = new FileInfo(Path.GetFullPath(src));
             var keysFilePath = Path.GetFullPath(String.Concat(dest, ".key.txt"));
 
-            switch (method)
-            {
-                case "aes":
-                    algorithm = new AesManaged();
-                    break;
-                case "des":
-                    algorithm = new DESCryptoServiceProvider();
-                    break;
-                case "rc2":
-                    algorithm = new RC2CryptoServiceProvider();
-                    break;
-                case "rijndael":
-                    algorithm = new RijndaelManaged();
-                    break;
-                default:
-                    Console.WriteLine("Unknown algorithm: {0}", method);
-                    return;
-            }
-            using (algorithm)
+            using (algorithm = GetAlgorithm(method))
             {
                 algorithm.GenerateIV();
                 algorithm.GenerateKey();
@@ -49,7 +31,7 @@ namespace Isachenko.Nsudotnet.Enigma
                         }
                     }
                 }
-
+            
                 string[] temp = {Convert.ToBase64String(algorithm.IV), Convert.ToBase64String(algorithm.Key)};
                 File.WriteAllLines(keysFilePath, temp);
             }
