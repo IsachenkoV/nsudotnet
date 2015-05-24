@@ -9,11 +9,9 @@ namespace Isachenko.Nsudotnet.Enigma
 
         public void DecryptFile(string src, string method, string keys, string dst)
         {
-            var dir = Directory.GetCurrentDirectory();
-
             SymmetricAlgorithm algorithm;
-            var srcInfo = new FileInfo(string.Concat(dir, "\\", src));
-            var keysFilePath = string.Concat(dir, "\\", keys);
+            var srcInfo = new FileInfo(Path.GetFullPath(src));
+            var keysFilePath = Path.GetFullPath(keys);
 
             switch (method)
             {
@@ -37,10 +35,9 @@ namespace Isachenko.Nsudotnet.Enigma
             string[] temp = File.ReadAllLines(keysFilePath);
             algorithm.IV = Convert.FromBase64String(temp[0]);
             algorithm.Key = Convert.FromBase64String(temp[1]);
-
             using (var inStream = srcInfo.OpenRead())
             {
-                using (var outStream = new FileStream(string.Concat(dir, "\\", dst), FileMode.OpenOrCreate))
+                using (var outStream = new FileStream(Path.GetFullPath(dst), FileMode.OpenOrCreate))
                 {
                     using (
                         var cryptoStream = new CryptoStream(outStream, algorithm.CreateDecryptor(),

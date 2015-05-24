@@ -8,11 +8,10 @@ namespace Isachenko.Nsudotnet.Enigma
     {
         public void EncryptFile(string src, string method, string dest)
         {
-            var dir = Directory.GetCurrentDirectory();
-
             SymmetricAlgorithm algorithm;
-            var srcInfo = new FileInfo(string.Concat(dir, "\\", src));
-            var keysFilePath = string.Concat(dir, "\\", dest, ".key.txt");
+
+            var srcInfo = new FileInfo(Path.GetFullPath(src));
+            var keysFilePath = Path.GetFullPath(String.Concat(dest, ".key.txt"));
 
             switch (method)
             {
@@ -38,7 +37,7 @@ namespace Isachenko.Nsudotnet.Enigma
 
             using (var inStream = srcInfo.OpenRead())
             {
-                using (var outStream = new FileStream(string.Concat(dir, "\\", dest), FileMode.OpenOrCreate))
+                using (var outStream = new FileStream(Path.GetFullPath(dest), FileMode.OpenOrCreate))
                 {
                     using (
                         var cryptoStream = new CryptoStream(outStream, algorithm.CreateEncryptor(),
